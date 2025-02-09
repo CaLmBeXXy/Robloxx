@@ -1,18 +1,19 @@
 local UserInputService = game:GetService("UserInputService")
-local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 
 local velocidadeOriginal = humanoid.WalkSpeed
-local velocidadeAgachado = velocidadeOriginal * 0.7  -- Ajuste da velocidade ao agachar
+local velocidadeAgachado = velocidadeOriginal * 0.5  -- Reduz velocidade enquanto agachado
 
 local agachado = false
-local tempoAgachado = 0.1  -- Tempo mais rápido de agachar
 
 -- Função para alternar entre agachar e levantar
 local function alternarAgachar()
     if agachado then
         -- Levanta
         humanoid.WalkSpeed = velocidadeOriginal
-        humanoid.HipHeight = humanoid.HipHeight + 2
+        humanoid.HipHeight = humanoide.HipHeight + 2
         agachado = false
     else
         -- Agacha
@@ -22,17 +23,14 @@ local function alternarAgachar()
     end
 end
 
--- Detectar toques no botão de agachar do mobile ou pressionamento de tecla 'C' no PC
+-- Verifica os controles de agachar no Flee the Facility
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
 
     -- No mobile, alterna ao pressionar o botão de agachar
     if input.UserInputType == Enum.UserInputType.Touch then
-        local touchLocation = input.Position
-        -- Verifica se o toque foi dentro da área do botão de agachar
-        if touchLocation.Y >= 0 and touchLocation.Y <= 100 then  -- Ajuste o valor de Y conforme a posição do botão
-            alternarAgachar()
-        end
+        -- Assumindo que o botão de agachar no mobile está ativado no jogo, verificamos o toque
+        alternarAgachar()
     end
 
     -- No PC, alterna ao pressionar a tecla 'C'
