@@ -2,32 +2,41 @@ local UserInputService = game:GetService("UserInputService")
 local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 
 local velocidadeOriginal = humanoid.WalkSpeed
-local velocidadeAgachado = velocidadeOriginal * 0.7
+local velocidadeAgachado = velocidadeOriginal * 0.7  -- Ajuste da velocidade ao agachar
 
-local function agacharLevantar()
-    -- Agacha
-    humanoid.WalkSpeed = velocidadeAgachado
-    humanoid.HipHeight = humanoid.HipHeight - 2
-    
-    -- Espera um tempo curto
-    wait(0.1)
-    
-    -- Levanta
-    humanoid.WalkSpeed = velocidadeOriginal
-    humanoid.HipHeight = humanoid.HipHeight + 2
+local agachado = false
+local tempoAgachado = 0.1  -- Tempo mais rápido de agachar
+
+-- Função para alternar entre agachar e levantar
+local function alternarAgachar()
+    if agachado then
+        -- Levanta
+        humanoid.WalkSpeed = velocidadeOriginal
+        humanoid.HipHeight = humanoid.HipHeight + 2
+        agachado = false
+    else
+        -- Agacha
+        humanoid.WalkSpeed = velocidadeAgachado
+        humanoid.HipHeight = humanoid.HipHeight - 2
+        agachado = true
+    end
 end
 
--- Detecção do clique no mobile ou pressionamento da tecla no PC
+-- Detectar toques no botão de agachar do mobile ou pressionamento de tecla 'C' no PC
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
-    
-    -- No mobile, agacha e levanta no toque
+
+    -- No mobile, alterna ao pressionar o botão de agachar
     if input.UserInputType == Enum.UserInputType.Touch then
-        agacharLevantar()
+        local touchLocation = input.Position
+        -- Verifica se o toque foi dentro da área do botão de agachar
+        if touchLocation.Y >= 0 and touchLocation.Y <= 100 then  -- Ajuste o valor de Y conforme a posição do botão
+            alternarAgachar()
+        end
     end
-    
-    -- No PC, agacha e levanta ao pressionar 'C'
+
+    -- No PC, alterna ao pressionar a tecla 'C'
     if input.KeyCode == Enum.KeyCode.C then
-        agacharLevantar()
+        alternarAgachar()
     end
 end)
