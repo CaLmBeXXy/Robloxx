@@ -1,40 +1,58 @@
+-- Variáveis de controle
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
 local UserInputService = game:GetService("UserInputService")
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local humanoid = character:WaitForChild("Humanoid")
+local UIS = game:GetService("UserInputService")
+local isCrouching = false
 
--- Carregar animação de agachar
-local agacharAnim = Instance.new("Animation")
-agacharAnim.AnimationId = "rbxassetid://507771019"  -- ID da animação do Flee the Facility
+-- Função para a animação de agachar
+local function playCrouchAnimation()
+    -- Coloque a animação de agachar aqui, exemplo:
+    local crouchAnim = Instance.new("Animation")
+    crouchAnim.AnimationId = "rbxassetid://animação_de_agachar" -- Substitua pelo ID da animação de agachar do Flee The Facility
+    local animTrack = Humanoid:LoadAnimation(crouchAnim)
+    animTrack:Play()
+end
 
-local velocidadeOriginal = humanoid.WalkSpeed
-local velocidadeAgachado = velocidadeOriginal * 0.5
-local agachado = false
-
--- Criar o botão
-local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
-
-local agacharButton = Instance.new("TextButton")
-agacharButton.Size = UDim2.new(0, 200, 0, 50)  -- Tamanho do botão
-agacharButton.Position = UDim2.new(0.5, -100, 0.9, -25)  -- Posição do botão
-agacharButton.Text = "Agachar"  -- Texto do botão
-agacharButton.Parent = screenGui
-
--- Função para alternar entre agachar e levantar
-local function alternarAgachar()
-    if agachado then
-        humanoid.WalkSpeed = velocidadeOriginal
-        humanoid:LoadAnimation(agacharAnim):Stop()  -- Para a animação
-        agachado = false
+-- Função para fazer o personagem agachar ou levantar
+local function toggleCrouch()
+    if isCrouching then
+        -- Levantar
+        Humanoid.HipWidth = 2 -- Padrão para personagem de pé
+        Humanoid.HipHeight = 2
+        isCrouching = false
+        -- Parar animação
+        Humanoid:MoveTo(Character.HumanoidRootPart.Position) -- Ajuste se necessário para "levantar"
     else
-        humanoid.WalkSpeed = velocidadeAgachado
-        humanoid:LoadAnimation(agacharAnim):Play()  -- Toca a animação
-        agachado = true
+        -- Agachar
+        Humanoid.HipWidth = 1 -- Padrão para agachado
+        Humanoid.HipHeight = 0.5
+        isCrouching = true
+        playCrouchAnimation()
     end
 end
 
--- Detecta o clique no botão
-agacharButton.MouseButton1Click:Connect(function()
-    alternarAgachar()
+-- Detecção de pressionamento de tecla (PC)
+UIS.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.LeftShift then
+        toggleCrouch()
+    end
+end)
+
+-- Detecção de clique no botão 'C' (Mobile)
+UIS.TouchStarted:Connect(function(input)
+    -- Detectando toque na tela
+    if input.UserInputType == Enum.UserInputType.Touch then
+        toggleCrouch()
+    end
+end)
+
+-- Detecção de 'C' no mobile (botão de toque)
+UIS.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.C then
+        toggleCrouch()
+    end
 end)
